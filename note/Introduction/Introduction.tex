@@ -1,0 +1,277 @@
+\part{Introduction}
+\section{What is machine learning?}
+\noindent
+A popular definition of \textbf{machine learning} or \textbf{ML}, is as follows:
+\par
+A computer program is said to learn from experience $E$ with respect to some class of tasks $T$, and performance measure $P$, if its performance at tasks in $T$, as measured by $P$, improves with experience $E$.
+\section{Supervised learning}
+The most common form of ML is \textbf{supervised learning}. In this problem, the task $T$ is to learn a mapping $f$ from inputs $x\in \mathcal{X}$ to output $y \in \mathcal{Y}$. The experience $E$ is given in the form of a set of $N$ input-output pairs $\mathcal{D} = \{(x_n, y_n)\}^{N}_{n=1}$, known as the \textbf{training set}.
+\subsection{Classification}
+In \textbf{classification} problems, the output space is a set of $C$ unorder and matually exclusive labels known as \textbf{classes}, $\mathcal{Y} = \{1,2,\cdots,C\}$. The problem of predicting the class label given an input is also called \textbf{pattern recognition}.
+~\\
+\par
+\noindent
+\textbf{Empirical risk minimization}
+\par
+The goal of supervised learning is to automatically come up with classification models, so as to reliably predict the labels for any given input. A common way to measure performance on this task is in the terms of the \textbf{misclassification rate} on the training set:
+\begin{equation}
+\mathcal{L}  \triangleq \frac{1}{N}\sum_{n=1}^N\mathbb{I}(y_n\neq f(x_n;\theta)) 
+\end{equation}
+This assumes all errors are equal. However it may be the case that some errors are more costly than others. For example, suppose we are foraging in the wilderness and we find some Iris flowers. Furthermore, suppose that setosa and versicolor are tasty, but virginica is poisonous. In this case, we might use the asymmetric \textbf{loss function} $\ell(y, \hat{y})$ shown in Table \ref{fig:1}.
+\begin{table}
+\begin{center}
+\begin{tabular}{l|cccc}
+& & \multicolumn{3}{c} { Estimate } \\
+& & Setosa & Versicolor & Virginica \\
+\hline \multirow{2}{*} { Truth } & Setosa & 0 & 1 & 1 \\
+& Versicolor & 1 & 0 & 1 \\
+& Virginica & 10 & 10 & 0
+\end{tabular}
+\end{center}
+\caption{Hypothetical asymmetric loss matrix for Iris classification}
+\label{fig:1}
+\end{table}
+We can then define \textbf{empirical risk} to be the average loss of the predictor on the training set:
+\begin{equation}
+\mathcal{L}(\boldsymbol{\theta}) \triangleq \frac{1}{N} \sum_{n=1}^{N} \ell\left(y_{n}, f\left(\mathbf{x}_{n} ; \boldsymbol{\theta}\right)\right)
+\end{equation}
+We see that the misclassification rate is equal to the empirical risk when we use \textbf{zero-one loss} for comparing the true label with the prediction:
+\begin{equation}
+\ell_{01} = \mathbb{I}(y\neq \hat{y})
+\end{equation}
+One way to define the problem of \textbf{modle fitting} or \textbf{training} is to find a setting of the parameters that minimizes the empirical risk on the training set:
+\begin{equation}
+\hat{\theta} = \arg\min_{\theta}\mathcal{L}(\theta) = \arg\min_{\theta}\frac{1}{N}\sum_{n=1}^N\ell(y_n, f(x_n;\theta))
+\end{equation}
+~\\
+\par
+\noindent
+\textbf{Uncertainty}
+\par
+In many cases, we will not be able to perfectly predict the exact output given the input, due to lack of knowledge of the input-output mapping(this is called the \textbf{epistemic uncertainty} or \textbf{model uncertainty}), and/or due to intrinsic (irreducible) stochasticity in the mapping (this is called \textbf{aleatoric uncertainty} or \textbf{data uncertainty}).
+\par
+We can capture our uncertainty using the following \textbf{conditional probability distribution}:
+\begin{equation}
+p(y=c|x;\theta) = f_c(x;\theta)
+\end{equation}
+where $f:\mathcal{X}\rightarrow[0,1]^C$ maps inputs to a probability distribution over the $C$ possible output labels. Since $f_c(x;\theta)$ returns the probability of class label $c$, we require $0\le f_c \le 1$ for each $c$, and $\sum_{c=1}^Cf_c=1$. To avoid this restriction, it is common to instead require the model to return unnormalized log-probabilities. We can then convert these to probabilities using the \textbf{softmax function}, which is defined as follows:
+\begin{equation}
+\mathcal{S}(a)  \triangleq [\frac{e^{a_1}}{\sum_{c^{\prime}=1}^Ce^{a_{c^{\prime}}}},\cdots,\frac{e^{a_C}}{\sum_{c^{\prime}=1}^Ce^{a_{c^{\prime}}}}]
+\end{equation}
+This maps $\mathbb{R}^C$ to $[0,1]^C$, and satisfies the constraints that $0\le \mathcal{S}(a) \le 1$ and $\sum_{c=1}^C\mathcal{S}(a)_c=1$. The input to softmax, $a=f(x;\theta)$, are called \textbf{logits}. We thus define the overall model as follows:
+\begin{equation}
+p(y=c|x;\theta) = \mathcal{S}_c(f(x;\theta))
+\end{equation}
+A common special case of this arises when $f$ is an \textbf{affine function} of the form
+\begin{equation}
+f(x;\theta) = b + w^Tx = b + w_1x_1 + w_2x_2 + \cdots + w_Dx_D
+\end{equation}
+where $\theta = (b,w)$ are the parameters of the model. This model is called \textbf{logistic regression}.
+\par
+To reduce notational clutter, it is common to absorb the bias term $b$ into the weights $w$ by defining $\widetilde{w} = [b, w_1, \cdots, w_D]$ and defining $\widetilde{x} = [1, x_1,\cdots, x_D]$, so that
+\begin{equation}
+\widetilde{w}^T\widetilde{x} = b+w^Tx
+\end{equation}
+This converts the affine function into a \textbf{linear function}. We will usually assume that this has been done, so we can just write the prediction function as follows:
+\begin{equation}
+f(x;w) = w^Tx
+\end{equation}
+~\\
+\par
+\noindent
+\textbf{Maximum likelihood estimation}
+\par
+When fitting probabilistic models, it is common to use the negative log probability as our loss function:
+\begin{equation}
+\ell(y, f(x;\theta)) = -\log p(y|f(x;\theta))
+\end{equation}
+The average negative log probability of the training set is given by
+\begin{equation}
+\operatorname{NLL}(\theta) = -\frac{1}{N}\sum_{n=1}^N\log p(y_n|f(x_n;\theta))
+\end{equation}
+This is called the \textbf{negative log likelihood}. If we minimize this, we can compute the \textbf{maximum likelihood estimate} or \textbf{MLE}:
+\begin{equation}
+\hat{\theta}_{\operatorname{mle}} = \arg\min_{\theta}\operatorname{NLL}(\theta)
+\end{equation}
+\subsection{Regression}
+Now suppose that we want to predict a real-valued quantity $y\in \mathbb{R}$ instead of a class label $y\in \{1,\cdots,C\}$; this is known as \textbf{Regression}.
+\par
+For regression, the most common used cost function is \textbf{quadratic loss}, or $\ell_2$ \textbf{loss}:
+\begin{equation}
+\ell_2(y,\hat{y}) = (y-\hat{y})^2
+\end{equation}
+This penalizes large \textbf{residuals} $y-\hat{y}$ more than small ones. The empirical risk when using quadratic loss is equal to the \textbf{mean squared error} or \textbf{MSE}:
+\begin{equation}
+\operatorname{MSE}(\theta) = \frac{1}{N}\sum_{n=1}^N(y_n-f(x_n;\theta))^2
+\end{equation}
+In regression problems, it is common to assume the output distribution is a \textbf{Gaussian} or \textbf{normal}, which is defined as
+\begin{equation}
+\mathcal{N}(y|\mu, \sigma^2) = \triangleq \frac{1}{\sqrt{2\pi\sigma^2}}e^{-\frac{1}{2\sigma^2}(y-\mu)^2}
+\end{equation}
+In the context of regression, we can make the mean depend on the inputs by defining $\mu = f(x_n;\theta)$. We therefore get the following conditional probability distribution:
+\begin{equation}
+p(y|x;\theta) = \mathcal{N}(y|f(x;\theta),\sigma^2)
+\end{equation}
+If we assume that the variance $\sigma^2$ is fixed, the corresponding negative log likelihood becaues
+\begin{equation}
+\begin{aligned}
+\operatorname{NLL} &= -\sum_{n=1}^N\log[(\frac{1}{2\pi\sigma^2})^{\frac{1}{2}}\exp(-\frac{1}{2\sigma^2}(y_n-f(x_n;\theta))^2)]\\
+&= \frac{N}{2\sigma^2}\operatorname{MSE}(\theta) + \operatorname{const}
+\end{aligned}
+\end{equation}
+We see that the NLL is proportional to the MSE. Hence computing the maximum likelihood estimate of the parameters will result in minimizing the squared, which seems like a sensible approach to model fitting.
+~\\
+\par
+\noindent
+\textbf{Linear regression}	
+\par
+For  regression, we can fit the data using a \textbf{linear regression} model of the form
+\begin{equation}
+f(x;\theta) = b + w^Tx
+\end{equation}
+and $\theta=(w,b)$ are all the parameters of the model. By adjusting $\theta$, we can minimize the sum of squared errors, until we find the \textbf{least squares solution}
+\begin{equation}
+\hat{\theta} = \arg\min_{\theta}\operatorname{MSE}(\theta)
+\end{equation}
+~\\
+\par
+\noindent
+\textbf{Polynomial regression}
+\par
+When linear model can not fit the data well, we can improve the fit by using \textbf{polynomial regression} model of degree $D$. This has the form $f(x;w) = w^T\phi(x)$, where $\phi(x)$ is a feature vector derived from the input, which has the following form:
+\begin{equation}
+\phi(x) = [1, x, x^2, \cdots, x^D]
+\end{equation}
+This is a simple example of \textbf{feature preprocessing}, also called \textbf{feature engineering}.
+~\\
+\par
+\noindent
+\textbf{Deep neural networks}
+\par
+We can create much more powerful models by learning to do nonlinear \textbf{feature extraction} automatically. If we let $\phi(x)$ have its own set of parameters, say $V$, then the overall model has the form
+\begin{equation}
+f(x;w,V) = w^T\phi(x;V)
+\end{equation}
+We can recursively decompose the feature extractor $\phi(x;V)$ into a composition of simpler function. The result model then becomes a stack of $L$ nested functions:
+\begin{equation}
+f(x;\theta) = f_L(f_{L-1}(\cdots(f_1(x))\cdots))
+\end{equation}
+where $f_{\ell}(x) = f(x;\theta_{\ell})$ is the function at layer $\ell$. The final layer is linear and has the form $f_L(x)=w^Tf_{1:L-1}(x)$, where $f_{1:L-1}(x)$ is the learned feature extractor. This is the key idea behind \textbf{deep neural networks} or \textbf{DNN}s, which includes common variants such as \textbf{convolutional neural networks}(CNNs) for images, and \textbf{recurrent neural networks}(RNNs) for sequences.
+\subsection{Overfitting and generalization}
+We can rewrite the empirical risk in the following equivalent way:
+\begin{equation}
+\mathcal{L}(\theta;\mathcal{D}_{\operatorname{train}}) = \frac{1}{|\mathcal{D}_{\operatorname{train}}|}\sum_{(x,y)\in \mathcal{D}_{\operatorname{train}}}\ell(y, f(x;\theta))
+\end{equation}
+where $|\mathcal{D}_{\operatorname{train}}|$ is the size of the training set $\mathcal{D}_{\operatorname{train}}$. This formulation is useful is useful because it makes explicit which dataset the loss is being evaluated on.
+\par
+A model that perfectly fits the training data, but which is too complex, is said to suffer from \textbf{overfitting}.
+\par
+To detect if a model is overfitting, let us assume that we have access the true distribution $p^*(x,y)$ used to generate the training set. Then, instead of computing the empirical risk we compute the theoretical expected loss or \textbf{population risk}
+\begin{equation}
+\mathcal{L}(\theta;p^*) = \mathbb{E}_{p^*(x,y)}[\ell(y, f(x;\theta))]
+\end{equation}
+The difference $\mathcal{L}(\theta;p^*) - \mathcal{L}(\theta;\mathcal{D}_{\operatorname{train}})$ is called the \textbf{generalization gap}. If a model has a large generalization gap, it is a sign that it is overfitting.
+\par
+In practice we don't know $p^*$. However, we can partition the data we do have into two subsets, known as the training set and the \textbf{test set}. Then we can approximate the population risk using the \textbf{test risk}:
+\begin{equation}
+\mathcal{L}(\theta;\mathcal{D}_{\operatorname{test}}) = \frac{1}{|\mathcal{D}_{\operatorname{test}}|}\sum_{(x,y)\in \mathcal{D}_{\operatorname{test}}}\ell(y, f(x;\theta))
+\end{equation}
+\par
+In practice, we need to partition the data into three sets, namely the training set, the test set and a \textbf{validation set}; the latter is used for model selection, and we just use the test set to estimate future performance (the population risk),  the test set is not used for model fitting or model selection.
+\subsection{No free lunch theorem}
+Given the large variety of models in the literature, it is natural to wonder which one is best. Unfortunately, there is no single best model that works optimally for all kinds of problems — this is sometimes called the \textbf{no free lunch theorem}. The reason is that a set of assumptions (also called \textbf{inductive bias}) that works well in one domain may work poorly in another. 
+\section{Unsupervised learning}
+An arguably much more interesting task is try to "make sense of" data, as opposed to just learning a mapping. That is, we just get observed "inputs" $\mathcal{D} = \{x_n:n=1:N\}$ without any corresponding "outputs" $y_n$. This is called \textbf{unsupervised learning}. From a probability perspective, we can  view the task of unsupervised learning as fitting an unconditional model of the form $p(x)$.
+\subsection{Clustering}
+A simple example of unsupervised learning is the problem of finding \textbf{clusters} in data. The goal is to partition the input into regions that contain "similar" points.
+ \subsection{Discovering latent "factors of variation"}
+ We often reduce the dimensionality by projecting it to a lower dimensional subspace which captures the "essence" of the data when dealing with high-dimensional data. One approach to this problem is to assume that each observed high-dimensional output $x_n \in \mathbb{R}^D$ was generated by a set of hidden or unobserved low-dimensional \textbf{latent factors} $z_n \in \mathbb{R}^K$. We can represent the model diagrammatically as follows: $z_n \rightarrow x_n$, where the arrow represents causation. Since we don't know the latent factor $z_n$, we often assume a simple prior probability model for $p(x_n)$ such as a Gaussian, which says that each factor is random $K$-dimensional vector.
+ \par
+ The simplest example is when we use a linear model, $p(x_n|z_n;\theta) = \mathcal{N}(Wz_n+\mu, \Sigma)$. The resulting model is called \textbf{factor analysis}(FA). It is similar to linear regression, except we only observe the output $x_n$, and not the inputs $z_n$. In the special case that $\Sigma = \sigma^2I$, this reduce to a model called probabilistic \textbf{principal components analysis(PCA)}. 
+\par
+Of course, assumping a linear mapping from $z_n$ to $x_n$ is very restrictive. However, we can create nonlinear extensiona by defining $p(x_n|z_n;\theta) = \mathcal{N}(x_n|f(z_n;\theta), \sigma^2I)$, where $f(z;\theta)$ is a nonlinear model, such as a deep neural network.
+\subsection{Self-supervised learning}
+A recently popular approach to unsupervised learning is known as \textbf{self-supervised learning}. In this approach, we create proxy supervised tasks from unlabeled data. For example, we might try to learn to predict a color image from a grayscale image, or to mask out words in a sentence and then try to predict them given the surrounding context. The hope is that the resulting predictor $\hat{x}_1 = f(x_2;\theta)$, where $x_2$ is the observed input and $\hat{x}_1$ is the predicted output, will learn useful features from the data, that can then be used in standard, downstream supervised tasks.
+\subsection{Evaluating unsupervised learning}
+A common method for evaluation unsupervised models is to measure the probability assigned by the model to unseen test examples. We can do this by computing the negative log likelihood of the data:
+\begin{equation}
+\mathcal{L}(\theta;\mathcal{D}) = -\frac{1}{\mathcal{D}}\sum_{x\in \mathcal{D}}\log{p(x|\theta)}
+\end{equation}
+This treats the problem of unsupervised learning as one of \textbf{density estimation}. 
+\par
+Unfortunately, density estimation is difficult, especially in high dimensions.An alternative evaluation metric is to use the learned unsupervised representation as features or input to a downstream supervised learning method. If the unsupervised method has discovered useful patterns, then it should be possible to use these patterns to perform supervised learning using much less labeled data than when working with the original features. That is, we can increase the \textbf{sample efficiency} of learning by first learning a good representation.
+\section{Reinforcement learning}
+In addition to supervised and unsupervised learning, there is a third kind of ML known as \textbf{reinforcement learning(RL)}. In this class of problems, the system or \textbf{agent} has to learn how to interact with its environment. This can be encoded by means of a \textbf{policy} $a = \pi(x)$, which specifies which action to take in response to each possible input $x$.
+\par
+The difference from supervised learning (SL) is that the system is not told which action is the best one to take. Instead, the system just receives an occasional reward (or punishment) signal in response to the actions that it takes. This is like \textbf{learning with a critic}, who gives an occasional thumbs up or thumbs down, as opposed to \textbf{learning with a teacher}, who tells you what to do at each step.
+\section{data}
+\subsection{Preprocessing discrete input data}
+Sometimes our input may have discrete input features, such as categorical variables like race and gender, or words from some vocabulary. In the sections below, we discuss some ways to preprocess such data to convert it to vector form. 
+~\\
+\par
+\noindent
+\textbf{One-hot encoding}
+\par
+The standard way to preprocess such categorical variables is to use a \textbf{one-hot encoding}, also called a \textbf{dummy encoding}. If a variable $x$ has $K$ values, we will denote its dummy encoding as follows: one-hot($x$) $=[\mathbb{I}(x=1), \cdots, \mathbb{I}(x=K)]$.
+~\\
+\par
+\noindent
+\textbf{Feature crosses}
+\par
+A linear model using a dummy encoding for each categorical variable can capture the \textbf{main effects} of each variable, but cannot capture \textbf{interaction effects} between them. We can fix this by computing explicit \textbf{feature crosses}. For example, we can define a new composite feature with $m\times n$ possible values, to capture the interaction of variable one which has $m$ categories and variable two which has $n$ categories.
+\subsection{Preprocessing text data}
+\noindent
+\textbf{Bag of words model}
+\par
+A simple approach to dealing with variable-length text documents is to interpret them as a \textbf{bag of words}, in which we ignore word order. To convert this to a vector from a fixed input space, we first map each word to a \textbf{token} from some vocabulary.
+\par
+Let $x_{nt}$ be the token at location $t$ in the $n$th document. If there are $D$ unique tokens in the vocabulary, the we can represent the $n$th document as a $D$-dimensional vector $\widetilde{x}_n$, where $\widetilde{x}_{nv}$ is the number of times that word $v$ occurs in document $n$:
+\begin{equation}
+\widetilde{x}_{nv} = \sum_{t=1}^T\mathbb{I}(x_{nt} = v)
+\end{equation}
+where $T$ is the length of document $n$. We can now interpret documents as vectors in $\mathbb{R}^D$. This is called the \textbf{vector space model} of text.
+\par
+We traditionally store input data in an $N\times D$ design matrix denoted by $X$, where $D$ is the number of features. In the context of vector space models, it is more common to represent the input data as a $D \times N$ term frequency matrix, where $TF_{ij}$ is the frequency of term $i$ in document $j$. 
+~\\
+\par
+\noindent
+\textbf{TF-IDF}
+\par
+To reduce the impact of words that occur manys times in general, we compute a quantity called the \textbf{inverse document frequence}, define as follows: $IDF_i \triangleq \log\frac{N}{1+DF_i}$, where $DF_i$ is the number of documents with term $i$. We can combine these transformations to compute the \textbf{TF-IDF} matrix as follows:
+\begin{equation}
+TFIDF_{ij} = \log(TF_{ij}+1)\times IDF_{i}
+\end{equation}
+~\\
+\par
+\noindent
+\textbf{Word embeddings}
+\par
+Although the TF-IDF transformation improves the vector representation of words by placing more weight on “informative” words and less on “uninformative” words, it does not overcome the fundamental issue that semantically similar words, such as “man” and “woman”, may be further apart (in vector space) than semantically dissimilar words, such as “man” and “banana”. 
+\par
+The standard way to solve this problem is to use \textbf{word embeddings}, in which we map each spare one-hot vector, $x_{nt} \in \{0,1\}^V$, to a lower-dimensional dense vector, $e_{nt}\in \mathbb{R}^K$ using $e_{nt} = Ex_{nt}$, where $E$ is learned such that semantically similar words are palced close by.
+\par
+Once we have an embedding matrix, we can represent a variable-length vector by summing (or averaging) the embeddings:
+\begin{equation}
+\bar{e}_n = \sum_{t=1}^Te_{nt} = E\widetilde{x}_n
+\end{equation}
+where $\widetilde{x}_n$ is the bag of words representation. We can then use this inside of a logistic regression classifier. The overall model has the form
+\begin{equation}
+p(y=c|x_n,\theta) = \mathcal{S}_c(WE\widetilde{x}_n)
+\end{equation}
+We often use a \textbf{pre-trained word embedding} matrix $E$, in which case the model is linear in $W$, which simplifies parameter estimation.
+~\\
+\par
+\noindent
+\textbf{Handling missing data}
+\par
+Sometimes we may have missing data, in which parts of the input $x$ or output $y$ may be unknown.
+\par
+To model this, let $M$ be an $N\times D$ matrix of binary variables, where $M_{nd} = 1$ if feature $d$ in example $n$ is missing, and $M_{nd} = 0$ otherwise. Let $X_v$ be the visible parts of the input feature matrix, corresponding to $M_{nd} = 0$, and $X_h$ be the missing parts, corresponding to $M_{nd}=1$. Let $Y$ be the output label matrix, which we assume is fully observed.
+\par
+\noindent
+We divide missing values into three types:
+\begin{itemize}
+\item [a.] If we assume $p(M|X_v,X_h,Y) = p(M)$, we say the data is missing completely at random or MCAR, since the missingness does not depend on the hidden or observed features.
+\item [b.] If we assume $p(M|X_v,X_h,Y) = p(M|X_v,Y)$, we say the data is missing at random or MAR, since the missingness does not depend on the hidden features, but may depend on the visible features.
+\item [c.] If neither of these assumptions hold, we say the data is not missing at random or NMAR.
+\end{itemize}

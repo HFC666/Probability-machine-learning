@@ -1,0 +1,99 @@
+\documentclass{article}
+\usepackage{amsmath, graphicx, indentfirst, amsfonts, fancyhdr, chngcntr,marginnote,appendix,listings,xcolor,tikz,amssymb,multirow}
+\pagestyle{fancy}
+\fancyhf{}  
+\fancyhead[L]{\rightmark}
+\fancyhead[R]{\leftmark}
+\fancyfoot[C]{~\thepage~}
+\newtheorem{example}{Example}[section]         
+\newtheorem{algorithm}{algorithm}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{definition}{Definition}[section]
+\newtheorem{proof}{Proof}[section]
+\newtheorem{axiom}{axiom}
+\newtheorem{property}{property}
+\newtheorem{proposition}{proposition}
+\newtheorem{lemma}{lemma}
+\newtheorem{corollary}{corollary}
+\newtheorem{remark}{remark}
+\newtheorem{condition}{condition}
+\newtheorem{conclusion}{conclusion}
+\newtheorem{assumption}{assumption}
+\setlength{\parindent}{2em}
+\lstset{
+    basicstyle          =   \sffamily,          
+    keywordstyle        =   \bfseries,          
+    commentstyle        =   \rmfamily\itshape,  
+    stringstyle         =   \ttfamily,  
+    flexiblecolumns,                
+    numbers             =   left,   
+    showspaces          =   false, 
+    numberstyle         =   \small\ttfamily,    
+    showstringspaces    =   false,
+    captionpos          =   t,      
+    frame               =   lrtb, 
+}
+
+\lstdefinestyle{Python}{
+    language        =   Python,
+    basicstyle      =   \small\ttfamily,
+    numberstyle     =   \small\ttfamily,
+    keywordstyle    =   \color{blue},
+    keywordstyle    =   [2] \color{teal},
+    stringstyle     =   \color{magenta},
+    commentstyle    =   \color{red}\ttfamily,
+    breaklines      =   true,   
+    columns         =   fixed, 
+    basewidth       =   0.5em,
+}
+\title{Probabilistic Machine Learning}
+\author{Han Fangcheng}
+\date{\today}
+\linespread{1.5}
+\counterwithin{figure}{section}
+\counterwithin{table}{section}
+\numberwithin{equation}{section}
+\begin{document}
+\begin{titlepage}
+    \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+    \begin{figure}[hptb]
+        \centering
+        \includegraphics[width=0.8\textwidth]{../image/logo.jpg}\\[1cm]
+    \end{figure}
+    \center
+    \quad\\[0.5cm]
+    \textsl{\Large Ocean University of China }\\[0.5cm]
+    \textsl{\large Fisheries College Of OUC}\\[0.5cm]
+    \makeatletter
+    \HRule \\[0.4cm]
+    { \large \bfseries \@title}\\[0.4cm]
+    \HRule \\[1.5cm]
+    \begin{minipage}{0.4\textwidth}
+        \begin{flushleft} \large
+            \emph{Author:}\\
+            \@author
+        \end{flushleft}
+    \end{minipage}
+    ~
+    \begin{minipage}{0.4\textwidth}
+        \begin{flushright} \large
+            \emph{Student ID:} \\
+            \textup{18060013010}
+        \end{flushright}
+    \end{minipage}\\[3cm]
+    \makeatother
+    {\large A note for Probabilistic Machine Learning}\\[0.5cm]
+    {\large \emph{Only through hard work can we become good steel}}\\[0.5cm]
+    {\large \today}\\[2cm]
+    \vfill
+\end{titlepage}
+\newpage
+\pagenumbering{roman}
+\setcounter{page}{1}
+\tableofcontents
+\newpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\input{Introduction/Introduction.tex}
+\input{Foundations/Foundations.tex}
+\end{document}
